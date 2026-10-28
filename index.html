@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Little Birthday Quest 💗</title>
+<style>
+  :root {
+    --pink: #ff8fc8;
+    --hot-pink: #ff5fa2;
+    --pale: #ffe6f2;
+    --cream: #fff8fc;
+    --purple: #a78bfa;
+    --ink: #542c52;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    min-height: 100vh; display: grid; place-items: center; padding: 18px;
+    background: #f9b8d9;
+    background-image:
+      linear-gradient(45deg, rgba(255,255,255,.18) 25%, transparent 25%),
+      linear-gradient(-45deg, rgba(255,255,255,.18) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, rgba(255,255,255,.18) 75%),
+      linear-gradient(-45deg, transparent 75%, rgba(255,255,255,.18) 75%);
+    background-size: 24px 24px; color: var(--ink);
+    font-family: "Courier New", monospace;
+  }
+  button, input { font: inherit; }
+  .game-shell {
+    width: min(820px, 100%); padding: 12px; background: #fff0f8;
+    border: 4px solid #fff; box-shadow: 0 0 0 4px #e76ba8, 10px 12px 0 #b84f87;
+    image-rendering: pixelated;
+  }
+  .topbar {
+    display: flex; justify-content: space-between; gap: 10px; align-items: center;
+    padding: 9px 12px; margin-bottom: 10px; background: #ffc5e1;
+    border: 3px solid #e76ba8; font-size: 12px; font-weight: bold;
+    letter-spacing: 1px;
+  }
+  .pixel-heart { color: #e84e9b; font-size: 18px; }
+  .scene {
+    position: relative; overflow: hidden; min-height: 470px; display: grid;
+    place-items: center; padding: 28px 18px;
+    background: linear-gradient(#b9e9ff 0%, #dff6ff 66%, #ffe4f1 66%, #ffd0e6 100%);
+    border: 4px solid #e76ba8;
+  }
+  .sun {
+    position: absolute; top: 34px; right: 55px; width: 48px; height: 48px;
+    background: #ffe98a; box-shadow: 0 0 0 7px rgba(255,233,138,.25);
+  }
+  .cloud { position: absolute; width: 92px; height: 20px; background: #fff; opacity: .85; }
+  .cloud:before, .cloud:after { content:""; position:absolute; background:#fff; }
+  .cloud:before { width:32px;height:28px;left:14px;top:-13px; }
+  .cloud:after { width:28px;height:24px;right:13px;top:-8px; }
+  .cloud.one { top: 72px; left: 8%; }
+  .cloud.two { top: 125px; right: 12%; transform: scale(.7); }
+  .ground {
+    position:absolute; bottom:0; left:0; width:100%; height:95px;
+    background: repeating-linear-gradient(90deg, #9cde9d 0 32px, #8bd38d 32px 64px);
+    border-top: 5px solid #70bf7b;
+  }
+  .flower { position:absolute; bottom:66px; font-size:23px; filter: drop-shadow(2px 2px 0 #fff); }
+  .flower.f1 { left:8%; } .flower.f2 { right:10%; } .flower.f3 { left:22%; bottom:34px; }
+  .card {
+    position: relative; z-index: 2; width: min(490px, 100%); padding: 26px 22px;
+    text-align: center; background: rgba(255,248,252,.94);
+    border: 4px solid #fff; outline: 4px solid #f27db5;
+    box-shadow: 7px 7px 0 rgba(177,74,133,.28);
+  }
+  .tiny-label { font-size: 11px; letter-spacing: 2px; color: #c04d8c; font-weight: bold; }
+  h1 { font-size: clamp(22px, 4vw, 32px); line-height: 1.25; margin: 12px 0; color: #d94e98; text-shadow: 2px 2px 0 #ffd1e8; }
+  .subtitle { font-size: 13px; line-height: 1.7; margin: 12px auto 18px; max-width: 360px; }
+  .lock-icon { font-size: 36px; margin: 6px 0; }
+  .input-wrap { display:flex; justify-content:center; gap:8px; margin: 18px 0 10px; }
+  input {
+    width: 175px; padding: 13px 12px; text-align:center; letter-spacing:5px;
+    border: 3px solid #f27db5; background:#fff; color:var(--ink); outline:none;
+  }
+  input:focus { box-shadow: 0 0 0 3px #ffd0e6; }
+  .pixel-btn {
+    padding: 13px 16px; border: 0; color: white; font-weight:bold; cursor:pointer;
+    background:#e95b9f; box-shadow: 0 4px 0 #b83f7e; transition: transform .08s;
+  }
+  .pixel-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #b83f7e; }
+  .pixel-btn:hover { background:#d94e98; }
+  .error { min-height: 18px; color:#c33e72; font-size:12px; margin: 8px 0 0; }
+  .hint { font-size:10px; opacity:.7; margin-top:17px; }
+  .hidden { display:none !important; }
+  .birthday-title { font-size:clamp(28px, 6vw, 47px); line-height:1.2; }
+  .message { font-size:clamp(14px, 2.5vw, 17px); line-height:1.9; }
+  .cake { font-size:56px; margin: 12px 0; image-rendering:pixelated; }
+  .from { color:#d94e98; font-weight:bold; font-size:18px; margin-top:15px; }
+  .sparkle { position:absolute; z-index:3; pointer-events:none; animation: floatUp 2.6s ease-out forwards; font-size:22px; }
+  @keyframes floatUp { 0% { transform:translateY(20px) scale(.5); opacity:0; } 15% {opacity:1;} 100% { transform:translateY(-230px) rotate(30deg) scale(1.2); opacity:0;} }
+  .footer { text-align:center; padding:12px 5px 3px; font-size:10px; letter-spacing:1px; color:#b84f87; }
+  .replay { margin-top: 12px; background:#b28ae8; box-shadow:0 4px 0 #8662bd; }
+  .replay:hover { background:#9e73d7; }
+  @media (max-width:520px) {
+    .scene { min-height: 520px; padding: 20px 12px; }
+    .card { padding: 22px 14px; }
+    .topbar { font-size:10px; }
+    .input-wrap { flex-direction:column; align-items:center; }
+    input, .pixel-btn { width:100%; max-width:240px; }
+  }
+</style>
+</head>
+<body>
+<main class="game-shell">
+  <div class="topbar"><span>♡ BIRTHDAY QUEST ♡</span><span>LV. 01 <span class="pixel-heart">♥♥♥</span></span></div>
+  <section class="scene" id="scene">
+    <div class="sun"></div><div class="cloud one"></div><div class="cloud two"></div>
+    <div class="ground"></div>
+    <span class="flower f1">🌷</span><span class="flower f2">🌼</span><span class="flower f3">🌸</span>
+
+    <div class="card" id="lockCard">
+      <div class="tiny-label">✦ A SECRET PRESENT FOR CHARLIY ✦</div>
+      <div class="lock-icon">🔐</div>
+      <h1>One tiny quest...</h1>
+      <p class="subtitle">A special birthday surprise is locked away!<br>Enter the secret password to unlock it. 💗</p>
+      <form id="passwordForm">
+        <div class="input-wrap">
+          <input id="passwordInput" type="password" placeholder="PASSWORD" autocomplete="off" aria-label="Secret password" autofocus>
+          <button class="pixel-btn" type="submit">UNLOCK ♡</button>
+        </div>
+        <div class="error" id="errorMessage" role="status"></div>
+      </form>
+      <div class="hint">✧ ONLY THE CHOSEN PLAYER KNOWS THE CODE ✧</div>
+    </div>
+
+    <div class="card hidden" id="birthdayCard">
+      <div class="tiny-label">✦ QUEST COMPLETE ✦</div>
+      <h1 class="birthday-title">HAPPY BIRTHDAY,<br>CHARLIY! 🎀</h1>
+      <div class="cake">🎂</div>
+      <p class="message">I hope your day is as lovely and special as you are.<br>Thank you for being you, and for making my world brighter. 💗</p>
+      <div class="from">I love you, Charliy! ♡</div>
+      <p class="subtitle">— Exo, with all my love</p>
+      <button class="pixel-btn replay" id="againButton" type="button">PLAY AGAIN ↻</button>
+    </div>
+  </section>
+  <div class="footer">MADE WITH ♡ JUST FOR YOU · SAVE YOUR GAME, KEEP YOUR MAGIC</div>
+</main>
+<script>
+  // CHANGE THE PASSWORD HERE whenever you want:
+  const SECRET_PASSWORD = "1234";
+
+  const form = document.getElementById("passwordForm");
+  const input = document.getElementById("passwordInput");
+  const error = document.getElementById("errorMessage");
+  const lockCard = document.getElementById("lockCard");
+  const birthdayCard = document.getElementById("birthdayCard");
+  const scene = document.getElementById("scene");
+
+  form.addEventListener("submit", function(event) {
+    event.preventDefault();
+    if (input.value.trim() === SECRET_PASSWORD) {
+      lockCard.classList.add("hidden");
+      birthdayCard.classList.remove("hidden");
+      error.textContent = "";
+      launchSparkles();
+    } else {
+      error.textContent = "Not quite! Try the secret code again 💕";
+      input.value = "";
+      input.focus();
+      lockCard.animate(
+        [{transform:"translateX(0)"},{transform:"translateX(-6px)"},{transform:"translateX(6px)"},{transform:"translateX(0)"}],
+        {duration:220}
+      );
+    }
+  });
+
+  document.getElementById("againButton").addEventListener("click", function() {
+    birthdayCard.classList.add("hidden");
+    lockCard.classList.remove("hidden");
+    input.value = "";
+    input.focus();
+  });
+
+  function launchSparkles() {
+    const symbols = ["💗", "💕", "✨", "🎀", "🌸", "♥"];
+    for (let i = 0; i < 28; i++) {
+      setTimeout(() => {
+        const sparkle = document.createElement("span");
+        sparkle.className = "sparkle";
+        sparkle.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        sparkle.style.left = (4 + Math.random() * 90) + "%";
+        sparkle.style.bottom = (8 + Math.random() * 25) + "px";
+        sparkle.style.animationDuration = (1.8 + Math.random() * 1.5) + "s";
+        scene.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 3400);
+      }, i * 75);
+    }
+  }
+</script>
+</body>
+</html>
